@@ -1,0 +1,383 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="escenario_concurso">
+    
+    <!-- LEYES DE LA FÍSICA Y ATMÓSFERA TERRESTRE (Vitales para EKF2) -->
+    <gravity>0 0 -9.8066</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- PLUGINS DEL SIMULADOR -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-air-pressure-system" name="gz::sim::systems::AirPressure"/>
+    <plugin filename="gz-sim-air-speed-system" name="gz::sim::systems::AirSpeed"/>
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer"/>
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <!-- COORDENADAS GLOBALES -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>19.4326</latitude_deg>
+      <longitude_deg>-99.1332</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- FONDO ROJO PRINCIPAL (7m x 14m) -->
+    <model name="tapete_rojo">
+      <static>true</static>
+      <pose>3.5 7 -0.01 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>7 14 0.02</size></box></geometry></collision>
+        <visual name="visual">
+          <geometry><box><size>7 14 0.02</size></box></geometry>
+          <material><ambient>0.6 0.1 0.1 1</ambient><diffuse>0.6 0.1 0.1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- TRES PISTAS TEXTURIZADAS PARA EL OPTICAL FLOW -->
+    <model name="pistas_optical_flow">
+      <static>true</static>
+      <link name="pista_izq">
+        <pose>1.25 7 0.005 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>1 14 0.005</size></box></geometry><material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+      <link name="pista_cen">
+        <pose>3.5 7 0.005 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>1 14 0.005</size></box></geometry><material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+      <link name="pista_der">
+        <pose>5.75 7 0.005 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>1 14 0.005</size></box></geometry><material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- CAJA DE MADERA GRANDE (2.5m x 2.5m) CON MARCOS SOBREPUESTOS EXACTOS -->
+    <model name="caja_madera_ventanas">
+      <static>true</static>
+      <pose>1.25 12.75 0 0 0 0</pose>
+      <!-- Paredes estructurales de la caja -->
+      <link name="pared_izq">
+        <pose>-1.25 0 1.25 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.1 2.5 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.1 2.5 2.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="pared_der">
+        <pose>1.25 0 1.25 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.1 2.5 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.1 2.5 2.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="pared_trasera">
+        <pose>0 1.25 1.25 0 0 0</pose>
+        <collision name="col"><geometry><box><size>2.5 0.1 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>2.5 0.1 2.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="techo">
+        <pose>0 0 2.45 0 0 0</pose>
+        <collision name="col"><geometry><box><size>2.5 2.5 0.1</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>2.5 2.5 0.1</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+
+      <!-- Fachada frontal con huecos limpios y sin agujeros superiores -->
+      <link name="frontal_inferior">
+        <pose>0 -1.2 0.8 0 0 0</pose>
+        <collision name="col"><geometry><box><size>2.5 0.1 1.6</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>2.5 0.1 1.6</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="frontal_superior">
+        <pose>0 -1.2 2.3 0 0 0</pose>
+        <collision name="col"><geometry><box><size>2.5 0.1 0.4</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>2.5 0.1 0.4</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="frontal_pilar_izq">
+        <pose>-1.025 -1.2 1.85 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.45 0.1 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.45 0.1 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="frontal_pilar_centro">
+        <pose>0.0 -1.2 1.85 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.40 0.1 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.40 0.1 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="frontal_pilar_der">
+        <pose>0.925 -1.2 1.85 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.65 0.1 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.65 0.1 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="frontal_parche_rojo_sup">
+        <pose>0.4 -1.2 2.05 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.4 0.1 0.1</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.4 0.1 0.1</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+
+      <!-- MARCO AZUL (Apertura interior exacta: 600x500 mm) -->
+      <link name="marco_azul_izq">
+        <pose>-0.82 -1.27 1.85 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.50</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_der">
+        <pose>-0.18 -1.27 1.85 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.50</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_sup">
+        <pose>-0.50 -1.27 2.12 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.68 0.03 0.04</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_inf">
+        <pose>-0.50 -1.27 1.58 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.68 0.03 0.04</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+
+      <!-- MARCO ROJO (Apertura interior exacta: 400x400 mm, perfectamente centrado en su agujero) -->
+      <link name="marco_rojo_izq">
+        <pose>0.18 -1.27 1.80 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.40</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_der">
+        <pose>0.62 -1.27 1.80 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.40</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_sup">
+        <pose>0.40 -1.27 2.02 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.48 0.03 0.04</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_inf">
+        <pose>0.40 -1.27 1.58 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.48 0.03 0.04</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- VENTILADOR AZUL (Alineado a la pista derecha, X=5.75) -->
+    <model name="ventilador">
+      <static>true</static>
+      <pose>5.75 12.0 0 0 0 0</pose>
+      <link name="panel">
+        <pose>0 0 1.25 0 0 0</pose>
+        <collision name="col"><geometry><box><size>1.5 0.1 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>1.5 0.1 2.5</size></box></geometry>
+          <material><ambient>0.1 0.2 0.7 1</ambient><diffuse>0.1 0.2 0.7 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="aspa">
+        <pose>0 -0.1 1.25 0.785 0 0</pose>
+        <visual name="vis">
+          <geometry><box><size>1.8 0.05 0.15</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="eje">
+        <pose>0 -0.15 1.25 1.57 0 0</pose>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>0.1</length></cylinder></geometry><material><ambient>0.7 0.4 0.1 1</ambient><diffuse>0.7 0.4 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ========================================== -->
+    <!-- CARRIL CENTRAL: LAS 4 FIGURAS SECUENCIALES -->
+    <!-- ========================================== -->
+
+    <!-- Figura 1: Estructura PVC con diagonal (Y = 3.0) -->
+    <model name="figura_pvc_diagonal">
+      <static>true</static>
+      <pose>3.5 3.0 0 0 0 0</pose>
+      <link name="poste_izq">
+        <pose>-0.5 0 1.0 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="poste_cen">
+        <pose>0 0 1.0 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="poste_der">
+        <pose>0.5 0 1.0 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="travesaño_hor">
+        <pose>0 0 0.922 0 1.5708 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>1.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="barra_diagonal">
+        <pose>-0.25 0 1.461 0 0.785 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.035</radius><length>1.414</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.035</radius><length>1.414</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Figura 2: Obstáculo con barra horizontal azul (Y = 5.0) -->
+    <model name="figura_barra_azul">
+      <static>true</static>
+      <pose>3.5 5.0 0 0 0 0</pose>
+      <link name="poste_izq">
+        <pose>-0.75 0 0.8 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>1.6</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>1.6</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="poste_der">
+        <pose>0.75 0 0.8 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>1.6</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>1.6</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="barra_azul">
+        <pose>0 0 0.8 0 1.5708 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.045</radius><length>1.6</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.045</radius><length>1.6</length></cylinder></geometry><material><ambient>0 0 0.8 1</ambient><diffuse>0 0 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Figura 3: Panel de madera con ventanas (Y = 7.5, ROTACIÓN CORREGIDA Y HUECOS REALES) -->
+    <model name="figura_panel_ventanas">
+      <static>true</static>
+      <pose>3.5 7.5 0 0 0 0</pose>
+      <!-- Postes de soporte rojos -->
+      <link name="poste_izq">
+        <pose>-0.75 0 1.0 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="poste_der">
+        <pose>0.75 0 1.0 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>2.0</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      
+      <!-- Panel construido con bloques para formar las ventanas (alineado en el eje X para ver al frente) -->
+      <link name="panel_madera_inf">
+        <pose>0 0 1.275 0 0 0</pose>
+        <collision name="col"><geometry><box><size>1.5 0.05 0.15</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>1.5 0.05 0.15</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_sup">
+        <pose>0 0 1.925 0 0 0</pose>
+        <collision name="col"><geometry><box><size>1.5 0.05 0.15</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>1.5 0.05 0.15</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_izq">
+        <pose>-0.7 0 1.6 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.1 0.05 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.1 0.05 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_cen">
+        <pose>0.05 0 1.6 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.2 0.05 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.2 0.05 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_der">
+        <pose>0.65 0 1.6 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.2 0.05 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.2 0.05 0.5</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_rojo_sup">
+        <pose>0.35 0 1.825 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.4 0.05 0.05</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.4 0.05 0.05</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+      <link name="panel_madera_rojo_inf">
+        <pose>0.35 0 1.375 0 0 0</pose>
+        <collision name="col"><geometry><box><size>0.4 0.05 0.05</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.4 0.05 0.05</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+
+      <!-- MARCO AZUL (Sobrepuesto frontalmente Y=-0.02, Luz interior 600x500mm) -->
+      <link name="marco_azul_izq">
+        <pose>-0.67 -0.02 1.6 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.5</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_der">
+        <pose>-0.03 -0.02 1.6 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.5</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_sup">
+        <pose>-0.35 -0.02 1.87 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.68 0.03 0.04</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+      <link name="marco_azul_inf">
+        <pose>-0.35 -0.02 1.33 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.68 0.03 0.04</size></box></geometry><material><ambient>0 0 0.9 1</ambient><diffuse>0 0 0.9 1</diffuse></material></visual>
+      </link>
+
+      <!-- MARCO ROJO (Sobrepuesto frontalmente Y=-0.02, Luz interior 400x400mm) -->
+      <link name="marco_rojo_izq">
+        <pose>0.13 -0.02 1.6 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.4</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_der">
+        <pose>0.57 -0.02 1.6 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.04 0.03 0.4</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_sup">
+        <pose>0.35 -0.02 1.82 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.48 0.03 0.04</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="marco_rojo_inf">
+        <pose>0.35 -0.02 1.38 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.48 0.03 0.04</size></box></geometry><material><ambient>0.9 0 0 1</ambient><diffuse>0.9 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Figura 4: Arco alto con barra roja superior (Y = 10.0) -->
+    <model name="figura_arco_alto">
+      <static>true</static>
+      <pose>3.5 10.0 0 0 0 0</pose>
+      <link name="poste_izq">
+        <pose>-0.75 0 0.99 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>1.98</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>1.98</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="poste_der">
+        <pose>0.75 0 0.99 0 0 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.04</radius><length>1.98</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.04</radius><length>1.98</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="barra_superior_roja">
+        <pose>0 0 1.98 0 1.5708 0</pose>
+        <collision name="col"><geometry><cylinder><radius>0.045</radius><length>1.6</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.045</radius><length>1.6</length></cylinder></geometry><material><ambient>0.8 0 0 1</ambient><diffuse>0.8 0 0 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- SOPORTE ARUCO (Al final de la pista central, Y = 12.5) -->
+    <model name="soporte_aruco">
+      <static>true</static>
+      <pose>3.5 12.5 0.4 0 0 0</pose>
+      <link name="tablero">
+        <collision name="col"><geometry><box><size>0.6 0.05 0.8</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.6 0.05 0.8</size></box></geometry>
+          <material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="marcas">
+        <pose>0 -0.03 0.2 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.1 0.02 0.3</size></box></geometry><material><ambient>0 0 0 1</ambient><diffuse>0 0 0 1</diffuse></material></visual>
+      </link>
+      <link name="base">
+        <pose>0 0.26 -0.38 0 0 0</pose>
+        <visual name="vis"><geometry><box><size>0.6 0.523 0.05</size></box></geometry><material><ambient>0.85 0.65 0.45 1</ambient><diffuse>0.85 0.65 0.45 1</diffuse></material></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
